@@ -10,22 +10,23 @@ func main() {
 	d := demo.New()
 
 	// Register the demo run
-	d.Add(example(), "demo-0", "scorecard cli basic usage.")
+	d.Add(scorecard(), "demo-0", "scorecard cli basic usage.")
+	d.Add(bq(), "demo-1", "scorecard BigQuery")
 
 	// Run the application, which registers all signal handlers and waits for
 	// the app to exit
 	d.Run()
 }
 
-// example is the single demo run for this application
-func example() *Run {
+// scorecard is the single demo run for this application
+func scorecard() *Run {
 	// A new run contains a title and an optional description
 	r := NewRun(
 		"Scorecard",
-		"Shout out to Sascha Grunert for creating this demo package that I am using https://github.com/saschagrunert/demo",
+		"Shout out to Sascha Grunert for creating this demo package https://github.com/saschagrunert/demo which is going to make me feel like 🦸.",
 	)
 
-	r.Step(S("How to get scorecard?",
+	r.Step(S("How to install scorecard cli?",
 		"brew install scorecard",
 		"nix-shell -p nixpkgs.scorecard",
 		"https://github.com/ossf/scorecard/releases/latest",
@@ -55,20 +56,27 @@ func example() *Run {
 		"scorecard --repo=github.com/ossf/scorecard --checks=Branch-Protection --format=json --show-details | jq .",
 	))
 
-	/*
+	r.Step(S("Does scorecard support non-github repos?"), S(
+		"scorecard --local-repo=. --show-details --format=json | jq .",
+	))
 
-		// Commands do not need to have a description, so we could set it to `nil`
-		r.Step(nil, S(
-			"echo without description",
-			"but this can be executed in",
-			"multiple lines as well",
-		))
+	return r
+}
 
-		// It is also not needed at all to provide a command
-		r.Step(S(
-			"Just a description without a command",
-		), nil)
-	*/
+func bq() *Run {
+	r := NewRun(
+		"Scorecard BigQuery",
+		"Scorecard runs on a Cron job and scans more than 1000,000 repositories every week.Lets use ossf BigQuery to explore Scorecard data.",
 
+	)
+	r.Step(S("deps.dev parses dependencies for a given repository",
+		"deps.dev stores the dependencies in BigQuery",
+		"We are going to deps.dev BigQuery to get dependencies of Scorecard",
+		"The BigQuery table to fetch dependencies is deps_dev_v1.DependencyGraphEdges"),
+
+		S("bq query --use_legacy_sql=false 'SELECT `from`.Name FROM "+
+			"`bigquery-public-data.deps_dev_v1.DependencyGraphEdges` "+
+			"WHERE DATE(SnapshotAt) = \"2022-05-08\" AND "+
+			"name LIKE \"github.com/ossf/scorecard\"'"))
 	return r
 }
