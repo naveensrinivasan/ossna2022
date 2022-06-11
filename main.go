@@ -56,8 +56,12 @@ func scorecard() *Run {
 		"scorecard --repo=github.com/ossf/scorecard --checks=Branch-Protection --format=json --show-details | jq .",
 	))
 
+	r.Step(S("Scorecard running against github.com/naveensrinivasan/ghaction for Pinned dependencies"),
+		S("scorecard --repo=github.com/naveensrinivasan/ghaction --checks=Pinned-Dependencies --format=json --show-details | jq ."),
+	)
+
 	r.Step(S("Does scorecard support non-github repos?"), S(
-		"scorecard --local-repo=. --show-details --format=json | jq .",
+		"scorecard --local=. --show-details --format=json | jq .",
 	))
 
 	return r
@@ -67,7 +71,6 @@ func bq() *Run {
 	r := NewRun(
 		"Scorecard BigQuery",
 		"Scorecard runs on a Cron job and scans more than 1000,000 repositories every week.Lets use ossf BigQuery to explore Scorecard data.",
-
 	)
 	r.Step(S("deps.dev parses dependencies for a given repository",
 		"deps.dev stores the dependencies in BigQuery",
