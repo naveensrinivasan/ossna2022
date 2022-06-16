@@ -99,7 +99,7 @@ func ghactionReset() *Run {
 		"Scorecard GH Action",
 		"Master branch v1 tag",
 	)
-	r.Step(S("Highjacking the GH action"),
+	r.Step(S("Takeover the GH action"),
 		S(`cd /Users/naveensrinivasan/go/src/github.com/naveensrinivasan/ghaction;
 		git checkout main;
 		git tag -fa v1 -m 'v1.0.0';
