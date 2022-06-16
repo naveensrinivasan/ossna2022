@@ -12,6 +12,8 @@ func main() {
 	// Register the demo run
 	d.Add(scorecard(), "demo-0", "scorecard cli basic usage.")
 	d.Add(bq(), "demo-1", "scorecard BigQuery")
+	d.Add(ghaction(), "demo-2", "scorecard GH Action")
+	d.Add(ghactionReset(), "demo-3", "scorecard GH Action")
 
 	// Run the application, which registers all signal handlers and waits for
 	// the app to exit
@@ -56,10 +58,6 @@ func scorecard() *Run {
 		"scorecard --repo=github.com/ossf/scorecard --checks=Branch-Protection --format=json --show-details | jq .",
 	))
 
-	r.Step(S("Scorecard running against github.com/naveensrinivasan/ghaction for Pinned dependencies"),
-		S("scorecard --repo=github.com/naveensrinivasan/ghaction --checks=Pinned-Dependencies --format=json --show-details | jq ."),
-	)
-
 	r.Step(S("Does scorecard support non-github repos?"), S(
 		"scorecard --local=. --show-details --format=json | jq .",
 	))
@@ -75,11 +73,36 @@ func bq() *Run {
 	r.Step(S("deps.dev parses dependencies for a given repository",
 		"deps.dev stores the dependencies in BigQuery",
 		"We are going to deps.dev BigQuery to get dependencies of Scorecard",
-		"The BigQuery table to fetch dependencies is deps_dev_v1.DependencyGraphEdges"),
+		"The BigQuery table to fetch dependencies is deps_dev_v1.DependencyGraphEdges",
+		"Scorecard dependencies that have Branch Protection check that has 'Force Push enabled' "),
+		S("cat scorecarddeps-2.sql|  bq  query --use_legacy_sql=false"))
+	r.Step(S("Scorecard dependencies that have Branch Protection check that has 'Force Push enabled' 3 months ago "),
+		S("cat scorecarddeps-3.sql|  bq  query --use_legacy_sql=false"))
+	return r
+}
 
-		S("bq query --use_legacy_sql=false 'SELECT `from`.Name FROM "+
-			"`bigquery-public-data.deps_dev_v1.DependencyGraphEdges` "+
-			"WHERE DATE(SnapshotAt) = \"2022-05-08\" AND "+
-			"name LIKE \"github.com/ossf/scorecard\"'"))
+func ghaction() *Run {
+	r := NewRun(
+		"Scorecard GH Action",
+		"All your data belongs to us.",
+	)
+	r.Step(S("Highjacking the GH action"),
+		S(`cd /Users/naveensrinivasan/go/src/github.com/naveensrinivasan/ghaction;
+		git checkout naveen/dpaste;
+		git tag -fa v1 -m 'All your data belongs to us';
+		git push origin --tags --force`))
+	return r
+}
+
+func ghactionReset() *Run {
+	r := NewRun(
+		"Scorecard GH Action",
+		"Master branch v1 tag",
+	)
+	r.Step(S("Highjacking the GH action"),
+		S(`cd /Users/naveensrinivasan/go/src/github.com/naveensrinivasan/ghaction;
+		git checkout main;
+		git tag -fa v1 -m 'v1.0.0';
+		git push origin --tags --force`))
 	return r
 }

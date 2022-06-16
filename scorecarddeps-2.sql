@@ -1,8 +1,8 @@
 SELECT
  count(*) AS BranchProtectinNotEnabled
 FROM
-  `openssf.scorecardcron.scorecard_latest` , unnest(checks) as c
-WHERE Repo In (
+  `openssf.scorecardcron.scorecard-v2_latest` , unnest(checks) as c
+WHERE Repo.Name In (
 "github.com/go-xmlfmt/xmlfmt",
 "github.com/spf13/cobra",
 "github.com/onsi/ginkgo",
@@ -163,4 +163,4 @@ WHERE Repo In (
 "github.com/google/go-cmp",
 "github.com/h2non/filetype")
 and c.Name = 'Branch-Protection'
-and c.Pass = false;
+and c.Score = 0;
